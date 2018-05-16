@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ARCS: Class: SURF</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+<header>
+<a href="index.html" style="font-size: 200%; text-decoration: none; font-weight: bold; color: #6F6FFF;"><img src="arcs_logo.png" alt="ARCS logo">.js</a> <span style="font-size: 250%; margin-left:2em; font-weight: bold; color: #6F6FBB;">Augmented Reality Component System</span>
+
+</header>
+<div id="main">
+    
+    <h1 class="page-title">Class: SURF</h1>
+    
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        SURF
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    <h4 class="name" id="SURF"><span class="type-signature"></span>new SURF<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+
+    
+
+    <h4 class="name" id=".drawIPoints"><span class="type-signature">&lt;static> </span>drawIPoints<span class="signature">(context, points, tailSize)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    for debugging purpose, this function displays detected features on a canvas
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>context</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">canvas on which the image is drawn</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>points</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">list of detected points</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tailSize</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">size of features when drawn on the image.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".getMatches"><span class="type-signature">&lt;static> </span>getMatches<span class="signature">(points1, points2)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    discover potential matches given to sets of descriptors
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>points1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">first array of descriptors</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>points2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">second array of descriptors</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    an array of matches, that is to say pairs of matching points
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".grayImage"><span class="type-signature">&lt;static> </span>grayImage<span class="signature">(image)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Transforms a color image into a gray image.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>image</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#ImageData">ImageData</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">color image to convert</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    an image encoded in gray levels
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".surfDetDes"><span class="type-signature">&lt;static> </span>surfDetDes<span class="signature">(image, octaves, intervals, initSample, threshold)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Detects SURF features and extract their corresponding descriptors in a given
+image. Detection should be performed on gray images only. If it is not the case
+then use <a href="SURF.html#.grayImage">grayImage()</a>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>image</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#ImageData">ImageData</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">image into which to start the detection.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>octaves</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of octaves on which to perform detection (default:5)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>intervals</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of intervals on which to perform detection (default:4)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>initSample</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">number of samples when initializing the algorithm (default: 2)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>threshold</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">threshold to consider feature as a good feature (default: 0.0004)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    a list of points with their descriptors
+</div>
+
+
+
+    
+
+
+
+        </dl>
+    
+    
+
+    
+
+    
+
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Animator.html">Animator</a></li><li><a href="ARUCODetector.html">ARUCODetector</a></li><li><a href="ARViewer.html">ARViewer</a></li><li><a href="Console.html">Console</a></li><li><a href="DiceDetector.html">DiceDetector</a></li><li><a href="DiceFace.html">DiceFace</a></li><li><a href="DisplayInt.html">DisplayInt</a></li><li><a href="GeoLocator.html">GeoLocator</a></li><li><a href="Loop.html">Loop</a></li><li><a href="ObjectTransform.html">ObjectTransform</a></li><li><a href="Posit.html">Posit</a></li><li><a href="Sum.html">Sum</a></li><li><a href="SURF.html">SURF</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed May 10 2017 00:01:45 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ARCS: Source: src/application.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+<header>
+<a href="index.html" style="font-size: 200%; text-decoration: none; font-weight: bold; color: #6F6FFF;"><img src="arcs_logo.png" alt="ARCS logo">.js</a> <span style="font-size: 250%; margin-left:2em; font-weight: bold; color: #6F6FBB;">Augmented Reality Component System</span>
+
+</header>
+<div id="main">
+    
+    <h1 class="page-title">Source: src/application.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/******************************************************************************
+ * Application implementation
+ * ***************************************************************************/
+/**
+ * Creates an application runnable by the ARCS engine.
+ * @class
+ * @classdesc The application is the master class of the ARCS engine. 
+ * It is initialized using a structured object (possibly described in JSON, 
+ * see {@link ARCS.Application#import}) 
+ * to load all external scripts describing components, instanciate
+ * all components and then start the application
+ */
+ARCS.Application = function () {
+    var context = new ARCS.Context(),
+        sheets = {},
+        controller = {},
+        libraries = [],
+        dependencies = [],
+        factories = {},
+        self = this,
+        autoStart = false,
+        currentSheet = "",
+        loadLibraries,
+        preProcess,
+        checkFactories;
+
+    factories.StateMachine = ARCS.Statemachine;
+    
+
+    loadLibraries = function () {
+        var i;
+        // we will use different instances of require either the one of node 
+        // or the one from require.js
+        ARCS.Application.currentApplication = self;
+
+        // in node.js, we have a synchronous load
+        if (ARCS.isInNode()) {  // this means we are using node.js  
+            for (i = 0; i &lt; libraries.length; i++) {
+                // store namespaces inside factories
+                require("./" + libraries[i] + ".js");
+            }
+        } else {
+            // in browser, we have an asynchronous load 
+            // all the work is in fact performed in function arcs_module
+            require(libraries);
+        }
+    };
+    
+    
+    this.loadLibrary = function (libName, cbFunction) {
+        var libUrl = libName, libActualName = libName;
+        
+        ARCS.Application.currentApplication = self;
+        if (typeof libName !== "string") {
+            libActualName = libName.name;
+            libUrl = libName.url;
+        }
+                
+        libraries.push(libActualName);
+        if (ARCS.isInNode()) 
+        { 
+            require("./" + libUrl + ".js"); 
+            if (cbFunction !== undefined) {
+                cbFunction();
+            }
+        }
+        else 
+        { 
+            require([libUrl], function () {
+                if (cbFunction !== undefined) {
+                    cbFunction();
+                }
+            }); 
+        }
+    };
+    
+    
+    this.export = function() {
+        var i;
+        var description = { 
+            context: {
+                libraries: [],
+                components: context
+            }, 
+            controller: context.getComponentName(controller), 
+            sheets: sheets            
+        } ;
+        
+        // first problem: when loaded by the editor, libraries are not the good ones
+        description.context.libraries = libraries;        
+        return description;
+    };
+    
+    /*this.getContext = function () {
+        return context;
+    };*/
+    
+    this.getFactoryList = function() {
+        return Object.keys(factories);
+    };
+    
+    this.getSheetList = function() {
+        return Object.keys(sheets);
+    };
+    
+    this.getFactory = function (fName) {
+        return factories[fName];
+    };
+    
+    this.getSheet = function (sName) {
+        return sheets[sName];
+    };
+    
+    this.getComponentList = function () {
+        return context.getComponentList();
+    };
+    
+    this.getComponent = function (cName) {
+        return context.getComponent(cName);
+    };
+    
+    this.getComponentName = function (cmp) {
+        return context.getComponentName(cmp);
+    };
+    
+    
+    this.addSheet = function (sName, sheet) {
+        sheets[sName] = sheet;
+        sheet.setContext(context);
+    };
+
+    this.setComponentValue = function (cName, cValue) {
+        context[cName].value = cValue;        
+    };
+        
+    this.addComponent = function (cName, cType, cValue) {
+        var component;
+        context[cName] = {};
+        context[cName].type = cType;
+        context[cName].value = cValue;
+        
+        var factory = factories[cType];
+        if (factory !== undefined) {
+            component = new factory(cValue);
+        }
+        context[cName].instance = component;        
+    };
+    
+    this.removeSheet = function (sName) {
+        delete sheets[sName];
+    };
+    
+    this.removeComponent = function (cName) {
+        delete context[cName];
+    };
+    
+    checkFactories = function () {
+        var i, cmpList = Object.keys(context);
+        for (i = 0; i &lt; cmpList.length; i++) {
+            if (context.hasOwnProperty(cmpList[i])) {
+                if (factories[context[cmpList[i]].type] === undefined) {
+                    return;
+                }
+            }
+        }
+        autoStart = false;
+        console.log("[ARCS] All factories are operational !");
+        preProcess();
+    };
+
+
+    preProcess = function () {
+        console.log("[ARCS] Starting application");
+        // first, we should instanciate components
+        var i, factory, instance, temp, sheetList, cmpList = Object.keys(context);
+        for (i = 0; i &lt; cmpList.length; i++) {
+            factory = factories[context[cmpList[i]].type];
+            //console.log(context[cmpList[i]].type);
+            instance = new factory(context[cmpList[i]].value);
+            context[cmpList[i]].instance = instance;
+        }
+
+        temp = context[controller].instance;
+        controller = temp;
+        // then we should work on sheets
+        sheetList = Object.keys(sheets);
+        for (i = 0; i &lt; sheetList.length; i++) {
+            temp = new ARCS.Sheet(context);
+            temp.import(sheets[sheetList[i]], context);
+            sheets[sheetList[i]] = temp;
+        }
+
+        ARCS.Component.connect(controller, "requestSheet", self, "setSheet");
+        ARCS.Component.connect(controller, "requestTermination", self, "finish");
+        controller.start();
+    };
+    
+    
+    this.setController = function (ctrlName) {
+        controller = context[ctrlName].instance;
+    };
+    
+    /**
+     * Sets the current sheet of the application. This method is in fact designed
+     * as a slot and may be triggered by a statemachine. If a sheet is already the
+     * current one, then it is deactivated before activating this new sheet.
+     * @param sheetName {string} name of the sheet to set as a current sheet.
+     */
+    this.setSheet = function (sheetname) {
+        if (currentSheet) {
+            sheets[currentSheet].deactivate();
+        }
+        currentSheet = sheetname;
+        sheets[currentSheet].activate();
+    };
+    /**
+     * This is the end my friend. This triggers the end of the application
+     */
+    this.finish = function () {
+        if (currentSheet) {
+            sheets[currentSheet].deactivate();
+        }
+    };
+    /**
+     * Imports a structured object describing the application. The structured object
+     * may be described itself in a JSON format.
+     * @param object {object} structured object describing an application.
+     * 
+     *   
+     * @example
+     * // JSON format of an application description
+     * {
+     *      context : {
+     *              libraries : [ "library1", "library2"],
+     *              components : [
+     *                      // this could be also properties from context
+     *                      name1: { type: "type", value: "value if needed" }
+     *              ],
+     *              constants : [
+     *                      // the same observation applies here
+     *                      name1: { representation : {JSON/objectRepresentation ? } }
+     *              ]
+     *      },
+     *      controller : controllerId,
+     *      sheets : {
+     *              sheetId : {     
+     *                      preconnections : [
+     *                              { 
+     *                                      destination: "id", 
+     *                                      slot : "slot name",
+     *                                      value : JSON/objectRepresentation ?
+     *                              }, {...}, {...}
+     *                      ],
+     *                      postconnections : [
+     *                              { 
+     *                                      destination: "id", 
+     *                                      slot : "slot name",
+     *                                      value : JSON/objectRepresentation ?
+     *                              }, {...}, {...}
+     *                      ],
+     *                      connections : [
+     *                              {
+     *                                      source: "id",
+     *                                      destination: "id",
+     *                                      slot: "slot name",
+     *                                      signal: "signal name"
+     *                              }, {...}, {...}
+     *                      ],
+     *                      cleanups : [
+     *                              { 
+     *                                      destination: "id", 
+     *                                      slot : "slot name",
+     *                                      value : JSON/objectRepresentation ?
+     *                              }, {...}, {...}
+     *                      ]
+     *              },
+     *              { ... }
+     *      }
+     * }
+     * 
+     */
+    this.import = function (object) {
+        libraries = object.context.libraries;
+        context = new ARCS.Context(object.context.components);
+        sheets = object.sheets;
+        controller = object.controller;
+        if (controller === undefined) {
+            console.error("[ARCS] Undefined controller. Cannot start application.");
+        }
+    };
+
+    /**
+     * Registers a factory using a key. If a factory was previously existing using 
+     * the same key, then it is overridden.
+     * @param key {string} name of the factory
+     * @param factory {object} component factory to register.
+     */
+    this.setFactory = function (key, factory) {
+        //console.log("[ARCS] registered factory %s", key);
+        factories[key] = factory;
+        if (autoStart) { checkFactories(); }
+    };
+
+    this.setDependency = function (key) {
+        dependencies[key] = {};
+    };
+
+    /**
+     * Starts the application
+     */
+    this.start = function () {
+        autoStart = true;
+        loadLibraries();
+    };
+};
+
+/**
+ * Helper function that registers a factory from the global namespace to a given
+ * application. This is defined in order to be callable by modules.
+ */
+ARCS.Application.setFactory = function (app, key, factory) {
+    if (ARCS.Component.check(factory)) {
+        app.setFactory(key, factory);
+    } else {
+        console.warn("[ARCS]",key,"is not a factory for an ARCS component.");
+    }
+};
+
+ARCS.Application.setDependency = function (app, key) {
+    app.setDependency(key);
+};
+
+
+
+ARCS.Component.create(ARCS.Application);
+ARCS.Application.slot("setSheet");
+ARCS.Application.slot("finish");
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="ARCS.Application.html">Application</a></li><li><a href="ARCS.Connection.html">Connection</a></li><li><a href="ARCS.Invocation.html">Invocation</a></li><li><a href="ARCS.Sheet.html">Sheet</a></li><li><a href="ARCS.Statemachine.html">Statemachine</a></li><li><a href="ARUCODetector.html">ARUCODetector</a></li><li><a href="ARViewer.html">ARViewer</a></li><li><a href="DisplayInt.html">DisplayInt</a></li><li><a href="Loop.html">Loop</a></li><li><a href="ObjectTransform.html">ObjectTransform</a></li><li><a href="Sum.html">Sum</a></li></ul><h3>Namespaces</h3><ul><li><a href="ARCS.html">ARCS</a></li><li><a href="ARCS.Component.html">Component</a></li></ul><h3>Global</h3><ul><li><a href="global.html#arcs_module">arcs_module</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri May 15 2015 01:59:05 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

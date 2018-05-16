@@ -1,0 +1,85 @@
+{
+  "context": {
+    "libraries": [
+      "components/arviewer","components/animator",
+      "components/objloader","components/video",
+      "components/arucodetector", "components/markerlocator",
+      "components/windowevent",  "components/objecttransform",
+      "components/markerdisplay"
+    ],
+    "components": {
+      "viewer": { "type": "ARViewer"},
+      "animator": { "type": "Animator"},
+      "detector": { "type": "ARUCODetector" },
+      "locator": { "type":"MarkerLocator"},
+      "windowresize": { "type": "WindowEvent"},
+      "objectTransform": { "type": "ObjectTransform"},
+      "markerDisplay" : { "type" : "MarkerDisplay", "value": "#overlay" },
+      "sm": {
+        "type": "StateMachine",
+        "value": {
+          "initial": "init", "final": "end",
+          "transitions": {
+            "init": { "next": "start"},
+            "start": { "next": "end" }
+          }
+        }
+      },
+      "objectLoader": {"type": "OBJLoader"},
+      "video": {"type": "LiveSource"}
+    }
+  },
+  "controller" : "sm",
+  "sheets": {
+    "init" : {
+        "preconnections": [
+            { "destination": "video", "slot": "setWidgets", "value": ["video", "canvas"] },
+            { "destination": "viewer", "slot": "keepAspectRatio", "value": [true] },
+            { "destination": "viewer", "slot": "setWidgets", "value": ["container", "video"]},
+            { "destination": "viewer", "slot": "setIntrinsics", "value": [ [600 , 0 , 160, 0, 600, 120, 0 ,0, 1 ]]},
+            { "destination": "objectTransform", "slot": "setId", "value": [ 17 ] },
+            { "destination": "viewer", "slot": "setSceneId", "value": [17] },
+            { "destination":"locator", "slot":"setImageSource", "value":["canvas"]},
+            { "destination": "locator", "slot":"setModelSize", "value":[0.07]},
+            { "destination": "locator", "slot": "setIntrinsics", "value": [ [ 600 , 0 , 160, 0, 600, 120, 0 ,0, 1 ] ]}
+        ],
+        "postconnections": [
+            { "destination": "objectLoader", "slot": "load", "value": ["al3.obj","al2.mtl"] }
+        ],
+        "connections": [
+            { "source": "objectLoader", "signal": "onLoad", "destination": "viewer", "slot": "addScene" },
+            { "source": "objectLoader", "signal": "onLoad", "destination": "objectTransform", "slot" : "setObject" },            
+            { "source": "objectLoader", "signal": "onLoad", "destination": "sm", "slot" : "next" }
+        ],
+        "cleanups": [
+     
+            { "destination": "objectLoader", "slot": "resize",  "value": [0.07]}
+        ]
+    },
+    "start": {
+      "preconnections": [
+      ],
+      "postconnections": [
+        { "destination": "viewer", "slot": "viewAll", "value": []},
+        { "destination": "animator", "slot": "start", "value":[]}
+      ],
+      "connections": [
+        { "source": "windowresize", "signal": "onResize", "destination": "viewer", "slot":"setSize"},
+        { "source": "detector", "signal": "onMarkers", "destination": "locator", "slot": "locateMarkers"},
+        { "source": "animator", "signal": "onAnimationFrame", "destination": "video", "slot": "grabFrame"},
+        { "source": "animator", "signal": "onAnimationFrame", "destination": "viewer", "slot": "render"},
+        { "source": "video", "signal": "onReady", "destination": "viewer", "slot": "resetCamera"},
+        { "source": "video", "signal": "onImage", "destination": "detector", "slot": "detect"},
+        { "source": "locator", "signal": "onLocatedMarkers", "destination": "viewer", "slot": "setExtrinsics"},
+        { "source": "locator", "signal": "onLocatedMarkers", "destination": "markerDisplay", "slot": "setMarkers"}
+      ],
+      "cleanups": []
+    },
+    "end": {
+      "preconnections": [],
+      "postconnections": [],
+      "connections": [],
+      "cleanups": []
+    }
+  }
+}

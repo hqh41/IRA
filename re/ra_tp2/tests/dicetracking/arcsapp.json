@@ -1,0 +1,131 @@
+{
+  "context": {
+    "libraries": [
+      "components/arviewer","components/animator",
+      "components/objloader","components/video",
+      "components/windowevent", "components/tokensender", "components/objecttransform",
+      "components/dicedetector"
+    ],
+    "components": {
+      "viewer": { "type": "ARViewer"},
+      "animator": { "type": "Animator"},
+      "windowresize": { "type": "WindowEvent"},
+      "detector": { 
+          "type" : "DiceDetector", "value": {
+                "canvas" : "canvas",
+                "debugCanvas" : "videoCanvas",
+                "faces": [
+                    {
+                        "center" : [ 0, 0, 0.03 ],
+                        "xaxis"  : [ 1, 0, 0],
+                        "yaxis"  : [ 0, 1, 0],
+                        "width"  : 0.06, "height": 0.06,
+                        "imageId" : "lena"
+                    },
+                    {
+                        "center" : [-0.03, 0, 0],
+                        "xaxis"  : [0, -1, 0],
+                        "yaxis"  : [0, 0, -1],
+                        "width": 0.06, "height": 0.06,
+                        "imageId" : "tux"
+                    },
+                    {
+                        "center" : [0.03, 0, 0],
+                        "xaxis"  : [0, 1, 0],
+                        "yaxis"  : [0, 0, -1],
+                        "width": 0.06, "height": 0.06,
+                        "imageId" : "gnu"
+                    },
+                    {
+                        "center" : [0, 0.03, 0],
+                        "xaxis"  : [1, 0, 0],
+                        "yaxis"  : [0, 0, 1],
+                        "width": 0.06, "height": 0.06,
+                        "imageId" : "earth"
+
+                    },
+                    {
+                        "center" : [0, -0.03, 0],
+                        "xaxis"  : [1, 0, 0],
+                        "yaxis"  : [0, 0, -1],
+                        "width": 0.06, "height": 0.06,
+                        "imageId" : "mandrill"
+                    },
+                    {
+                        "center" : [0, 0, -0.03],
+                        "xaxis"  : [-1, 0, 0],
+                        "yaxis"  : [0, 1, 0], 
+                        "width": 0.06, "height": 0.06,
+                        "imageId" : "queen"
+                    }
+                ]
+           }
+      },
+      "objectTransform": { "type": "ObjectTransform"},
+      "ts" : { "type": "TokenSender", "value": ["next"] },
+      "sm": {
+        "type": "StateMachine",
+        "value": {
+          "initial": "init", "final": "end",
+          "transitions": {
+            "init": { "next": "start"},
+            "start": { "next": "end" }
+          }
+        }
+      },
+      "objectLoader": {"type": "OBJLoader"},
+      "video": {"type": "LiveSource"}
+    }
+  },
+  "controller" : "sm",
+  "sheets": {
+    "init" : {
+        "preconnections": [
+            { "destination": "video", "slot": "setWidgets", "value": ["video", "videoCanvas"] },
+            { "destination": "viewer", "slot": "keepAspectRatio", "value": [true] },
+            { "destination": "viewer", "slot": "setWidgets", "value": ["container", "videoCanvas"]},
+            { "destination": "viewer", "slot": "setFocal", "value": [ 600 ]},
+            { "destination": "detector", "slot": "setFocal", "value" : [ 600 ]},
+            { "destination": "detector", "slot": "setId", "value": [1337]},
+            { "destination": "objectTransform", "slot": "setId", "value": [ 1337 ] },
+            { "destination": "viewer", "slot": "setSceneId", "value": [1337] }
+        ],
+        "postconnections": [
+            { "destination": "objectLoader", "slot": "load", "value": ["al3.obj","al2.mtl"] }
+        ],
+        "connections": [
+            { "source": "objectLoader", "signal": "onLoad", "destination": "viewer", "slot": "addScene" },
+            { "source": "objectLoader", "signal": "onLoad", "destination": "objectTransform", "slot" : "setObject" },            
+            { "source": "objectLoader", "signal": "onLoad", "destination": "ts", "slot" : "next" },
+            { "source": "ts", "signal": "sendToken", "destination": "sm", "slot" : "setToken" }
+        ],
+        "cleanups": [
+     
+            { "destination": "objectLoader", "slot": "resize",  "value": [0.05]}
+        ]
+    },
+    "start": {
+      "preconnections": [
+      ],
+      "postconnections": [
+        { "destination": "viewer", "slot": "viewAll", "value": []},
+        { "destination": "animator", "slot": "start", "value":[]}
+      ],
+      "connections": [
+        { "source": "windowresize", "signal": "onResize", "destination": "viewer", "slot":"setSize"},
+        { "source": "animator", "signal": "onAnimationFrame", "destination": "video", "slot": "grabFrame"},
+        { "source": "animator", "signal": "onAnimationFrame", "destination": "viewer", "slot": "render"},
+        { "source": "video", "signal": "onReady", "destination": "viewer", "slot": "resetCamera"},
+        { "source": "video", "signal": "onImage", "destination": "detector", "slot": "detect"},
+        { "source": "detector", "signal": "sendPose", "destination": "objectTransform", "slot": "setTransform"}
+      ],
+      "cleanups": []
+    },
+    "end": {
+      "preconnections": [],
+      "postconnections": [],
+      "connections": [],
+      "cleanups": []
+    }
+  }
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ARCS: Source: src/component.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+<header>
+<a href="index.html" style="font-size: 200%; text-decoration: none; font-weight: bold; color: #6F6FFF;"><img src="arcs_logo.png" alt="ARCS logo">.js</a> <span style="font-size: 250%; margin-left:2em; font-weight: bold; color: #6F6FBB;">Augmented Reality Component System</span>
+
+</header>
+<div id="main">
+    
+    <h1 class="page-title">Source: src/component.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/******************************************************************************
+ * Component implementation
+ * ***************************************************************************/
+
+
+/** 
+ * Defines main traits of components in a namespace regrouping important methods
+ * 
+ * @namespace 
+ */
+ARCS.Component = {
+    /** Error message */
+    SourceIsNotComponent : {message : "Source is not a component"},
+    /** Error message */
+    UndefinedSignal : {message : "Signal is not defined"},
+    /** Error message */
+    UndefinedSlot : {message : "Slot is not defined"},
+    /**
+     * External constructor: give component traits to any constructor.
+     * 
+     * Component traits are the following: 
+     * &lt;ul>
+     * &lt;li>Slot functions listed in an array;&lt;/li>
+     * &lt;li>A signal list described in an array;&lt;/li>
+     * &lt;li>A method returning the slot list;&lt;/li>
+     * &lt;li>A method returnung the signal list;&lt;/li>
+     * &lt;li>An emit method, to trigger signals by their names;&lt;/li>
+     * &lt;li>A slot method to cast an internal method to a slot;&lt;/li>
+     * &lt;li>A signal mehtod to register a possible signal.&lt;/li>
+     * &lt;/ul>
+     * @param name {string} Class name to transform to a component
+     * @param sltList {string[]} names of functions designated as slots, may be empty.
+     * @param sgnList {string[]} names of functions designated as signals, may be empty.
+     */
+    create : function (name, sltList, sgnList) {
+        if (name.prototype === undefined) {
+            console.error("Cannot create such a component");
+            return 0;
+        }
+
+        name.prototype.slots = [];
+        name.prototype.signals = {};
+        name.slotList = function () {
+            return name.prototype.slots;
+        };
+        name.prototype.slotList = function () {
+            return name.prototype.slots;
+        };
+        name.prototype.signalList = function () {
+            var res = [], i;
+            for (i in name.prototype.signals) {
+                res.push(i);
+            }
+            return res;
+        };
+        name.signalList = function () {
+            return name.prototype.signalList();
+        };
+        name.prototype.emit = function (signal) {
+            var slt, func, obj;
+            var args = Array.prototype.slice.call(arguments,1);
+            for (slt in this.signals[signal]) {
+                func = this.signals[signal][slt].func;
+                obj = this.signals[signal][slt].obj;
+                func.apply(obj, args);
+            }
+        };
+        name.slot = function (slot, func) {
+            var i;
+            if (slot instanceof Array) {
+                for (i = 0; i &lt; slot.length; i++) {
+                    name.prototype.slots.push(slot[i]);
+                }
+            } else {
+                name.prototype.slots.push(slot);
+                if (func !== undefined) {
+                    name.prototype[slot] = func;
+                }
+            }
+        };
+        name.signal = function (signal) {
+            var i;
+            if (signal instanceof Array) {
+                for (i = 0; i &lt; signal.length; i++) {
+                    name.prototype.signals[signal[i]] = 1;
+                }
+            } else {
+                name.prototype.signals[signal] = 1;
+            }
+        };
+
+        // code for returning component, and or completing its definition
+        if (sltList !== undefined) {
+            name.slot(sltList);
+        }
+
+        if (sgnList !== undefined) {
+            name.signal(sgnList);
+        }
+        return name;
+    },
+    /** 
+     * Checks if the given prototype has traits of a component
+     * @param name {string} name of the prototype
+     */
+    check : function (name) {
+        if (name.prototype === undefined) {
+            return false;
+        }
+        if (name.prototype.signals === undefined ||
+                name.prototype.slots === undefined) {
+            return false;
+        }
+        return true;
+    },
+    /**
+     * Connects two different components by using their signal and slots
+     * @param source {object} component sending data
+     * @param signal {string} name of the signal to connect
+     * @param destination {object} component receiving data
+     * @param slt {string} name of the slot to connect
+     */
+    connect : function (source, signal, destination, slt) {
+        var orig, p;
+        // here we can perform various checks.
+        if (source.signals === undefined) {
+            throw ARCS.Component.SourceIsNotComponent;
+        }
+        if (source.signals[signal] === undefined) {
+            throw ARCS.Component.UndefinedSignal;
+        }
+        if (destination[slt] === undefined) {
+            throw ARCS.Component.UndefinedSlot;
+        }
+        // we must also check if the signals dispose of their own implementation
+        if (!source.hasOwnProperty('signals')) {
+            // otherwise, we should clone it so that each component dispose of its 
+            // own signal copy.
+            orig = source.signals;
+            source.signals = {};
+            for (p in orig) {
+                source.signals[p] = [];
+            }
+        }
+        source.signals[signal].push({obj: destination, func: destination[slt]});
+    },
+    /**
+     * Diconnects a signal/slot connection between two components
+     * @param source {object} component sending data
+     * @param signal {string} name of the signal to connect
+     * @param destination {object} component receiving data
+     * @param slt {string} name of the slot to connect
+     */
+    disconnect : function (source, signal, destination, slt) {
+        var i;
+        for (i = 0; i &lt; source.signals[signal].length; i++) {
+            if (source.signals[signal][i].obj === destination) {
+                if (source.signals[signal][i].func === destination[slt]) {
+                    source.signals[signal].splice(i, 1);
+                    i--;
+                }
+            }
+        }
+    },
+    /**
+     * Invokes a specific slot of a given component
+     * @param destination {object} component upon which invocation is performed
+     * @param slt {string} name of the slot to invoke
+     * @param value {mixed} value to input
+     */
+    invoke : function (destination, slt, value) {
+        if (destination[slt] === undefined) {
+            throw ARCS.Component.UndefinedSlot;            
+        }
+        
+        
+        var func = destination[slt];
+        func.apply(destination, value);
+    },
+    /** 
+     * Specific hook that can be called when initializing a component
+     * @param component {object} prototype of the component
+     * @param obj {object} the actual object
+     */
+    config : function (component, obj) {
+        if (typeof component.config === 'function') {
+            component.config(obj);
+        }
+    }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="ARCS.Application.html">Application</a></li><li><a href="ARCS.Connection.html">Connection</a></li><li><a href="ARCS.Invocation.html">Invocation</a></li><li><a href="ARCS.Sheet.html">Sheet</a></li><li><a href="ARCS.Statemachine.html">Statemachine</a></li><li><a href="ARUCODetector.html">ARUCODetector</a></li><li><a href="ARViewer.html">ARViewer</a></li><li><a href="DisplayInt.html">DisplayInt</a></li><li><a href="Loop.html">Loop</a></li><li><a href="ObjectTransform.html">ObjectTransform</a></li><li><a href="Sum.html">Sum</a></li></ul><h3>Namespaces</h3><ul><li><a href="ARCS.html">ARCS</a></li><li><a href="ARCS.Component.html">Component</a></li></ul><h3>Global</h3><ul><li><a href="global.html#arcs_module">arcs_module</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri May 15 2015 01:59:05 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

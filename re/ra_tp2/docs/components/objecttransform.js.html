@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ARCS: Source: objecttransform.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+<header>
+<a href="index.html" style="font-size: 200%; text-decoration: none; font-weight: bold; color: #6F6FFF;"><img src="arcs_logo.png" alt="ARCS logo">.js</a> <span style="font-size: 250%; margin-left:2em; font-weight: bold; color: #6F6FBB;">Augmented Reality Component System</span>
+
+</header>
+<div id="main">
+    
+    <h1 class="page-title">Source: objecttransform.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>arcs_module(
+    function(ARCS,_three) {
+        var ObjectTransform ;
+
+        /** 
+         * @class ObjectTransform
+         * @classdesc Apply transformations to objects
+         */
+        ObjectTransform = ARCS.Component.create(
+            function() {
+                var objRoot;
+                var refMat;
+                var id = -1;
+
+                /**
+                 * Sets the object of interest on which we would like to apply transforms.
+                 * @param obj {object} a Three.js Object3D
+                 * @function ObjectTransform#setObject
+                 */
+                this.setObject = function (obj) {
+                    objRoot = new THREE.Object3D();
+                    obj.parent.add(objRoot);
+                    obj.parent.remove(obj);
+                    objRoot.add(obj);
+                    
+                    var box = new THREE.Box3;
+                    box.setFromObject(obj);
+                    var s = box.size();
+                    var scale = MAX3(s.x, s.y, s.z);
+                    console.log(scale);
+                    obj.add(new THREE.AxisHelper(scale / 2));
+                };
+                
+                var MAX3 = function (a,b,c) {
+                    if ( a >= b ) {
+                         if ( a >= c) {
+                             return a;
+                         } else {
+                             return c;
+                         }
+                    } else {
+                         if (b >= c) {
+                             return b;
+                         } else {
+                             return c;
+                         }
+                    }
+                };
+
+                
+                
+                // right now, we make something compatible with aruco markers
+                // it may evolve in the future
+                
+                /**
+                 * Takes an array of markers and then applies transformations 
+                 * to the referenced object.
+                 * @function ObjectTransform#setTransform
+                 * @param arr {array} an array of detected markers.
+                 */                
+                this.setTransform = function ( arr ) {
+                    /*2 set here the transformation we should apply on objRoot
+                     *  Each marker has 3 major properties :
+                     *  - id is the marker id;
+                     *  - pose.rotation gives its orientation using a rotation matrix
+                     *    and is a 3x3 array
+                     *  - pose.position gives its position with respect to the camera
+                     *    and is a vector with 3 components.
+                     */
+                    if (objRoot === undefined) { return ; }
+                    var i ;
+                    for ( i = 0; i &lt; arr.length; i++) {
+                        if ( arr[i].id === id ) {
+                            // insert your code here.
+                            
+                            var rotation = arr[i].pose.rotation;
+                            var translation = arr[i].pose.position;
+                            var matrix = new THREE.Matrix4(
+                                rotation[0][0], rotation[0][1], rotation[0][2], translation[0],
+                                rotation[1][0], rotation[1][1], rotation[1][2], translation[1],
+                                rotation[2][0], rotation[2][1], rotation[2][2], translation[2],
+                                0 , 0, 0, 1);
+        
+                            var r = new THREE.Euler();
+                            r.setFromRotationMatrix(matrix);        
+                            objRoot.rotation.x = r.x;
+                            objRoot.rotation.y = r.y;
+                            objRoot.rotation.z = r.z;
+                            
+                            objRoot.position.x = translation[0];
+                            objRoot.position.y = translation[1];
+                            objRoot.position.z = translation[2];
+                            
+                            objRoot.scale.x = 1;
+                            objRoot.scale.y = 1;
+                            objRoot.scale.z = 1;
+                                                        
+                        }
+                    }
+                };
+                
+                this.setId = function (i) {
+                    id = i;
+                };
+            },
+            ['setObject', 'setTransform', 'setId'],
+            []
+        );
+
+
+
+        return { ObjectTransform : ObjectTransform };
+    },
+    [ "deps/three.js/index" ]
+);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="ARUCODetector.html">ARUCODetector</a></li><li><a href="ARViewer.html">ARViewer</a></li><li><a href="DisplayInt.html">DisplayInt</a></li><li><a href="Loop.html">Loop</a></li><li><a href="ObjectTransform.html">ObjectTransform</a></li><li><a href="Sum.html">Sum</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri May 15 2015 01:59:10 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>ARCS: model based experiment</title>
+            <link type="text/css" rel="stylesheet" href="arcs.css">
+                <script data-main="../../build/arcs_browser" 
+                        data-base-url="../.." 
+                        data-arcsapp="arcsapp.json" 
+                        src="../../deps/requirejs/require.js">
+                </script>
+            <meta charset="UTF-8"> 
+    </head>
+    <body>
+        <video id="video" width=320 height=240 autoplay="true" style="display: none;"></video>
+        <canvas id="canvas"></canvas>
+        <canvas id="videoCanvas" class="hide"></canvas>
+        <div id="container" ></div>
+        <div id="contents">
+            <!--div id="console">
+                <div style="float: right; font-size: 150%; padding:0; margin:0;" onclick="document.getElementById('output').classList.toggle('hide');">&#9881;</div>
+                <p id="output">Console log:<br/></p>
+            </div-->
+            <a id="logo" href="http://arcs.ibisc.univ-evry.fr"><img src="../../docs/arcs_logo.png" alt="ARCS"/></a>
+        </div>
+
+        <img id="lena" class="hide" src="img/lena.jpg"/>
+        <img id="tux" class="hide" src="img/tux.png"/>
+        <img id="gnu" class="hide" src="img/gnu.png"/>
+        <img id="earth" class="hide" src="img/earth.jpg"/>
+        <img id="mandrill" class="hide" src="img/mandrill.jpg"/>
+        <img id="queen" class="hide" src="img/queen.png"/>
+
+
+
+    </body>
+</html>

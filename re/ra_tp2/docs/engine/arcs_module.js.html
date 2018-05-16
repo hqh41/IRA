@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ARCS: Source: src/arcs_module.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+<header>
+<a href="index.html" style="font-size: 200%; text-decoration: none; font-weight: bold; color: #6F6FFF;"><img src="arcs_logo.png" alt="ARCS logo">.js</a> <span style="font-size: 250%; margin-left:2em; font-weight: bold; color: #6F6FBB;">Augmented Reality Component System</span>
+
+</header>
+<div id="main">
+    
+    <h1 class="page-title">Source: src/arcs_module.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * definition of the main module function: 
+ * it takes an anonymous function as a parameter
+ * the anonymous function has one parameter: the object encompassing 
+ * ARCS definitions (in order to able to use ARCS.Component.create, ...)
+ * @param moduleDefinition {function} main function of the module. 
+ * It should return a list of components
+ * @param deps {mixed[]} dependencies
+ */
+arcs_module = function (moduleDefinition, deps) {
+    var dependencies = [], loadedDependencies = 0, storeComponents, i;
+
+    if (typeof module !== 'undefined') {
+        if (module.parent.exports) {
+            ARCS = module.exports; //.parent.exports;
+        //console.log(module);
+        }
+    }
+
+    dependencies[0] = ARCS;
+
+    //console.log(ARCS);
+    // one of the first problems that may arise is that we should solve dependencies
+    // here before launching the application since module definition will depend on it !
+    // it will depend wether we are using node.js or require.js !
+
+    if (deps === undefined) { deps = []; }
+
+    storeComponents = function (deps) {
+        // coté asynchrone non défini
+        //console.log("storing components");
+        var mdef, p, actualDep, shimConfig;
+        mdef = (typeof moduleDefinition === 'function') ?
+                moduleDefinition.apply(this, deps) : moduleDefinition;
+
+        if (mdef === undefined) {
+            throw new Error("[ARCS] Your module is undefined. Did you forget to export components?\nCode of module follows:\n"+moduleDefinition);
+        }
+
+        //console.log("[ARCS] Loading factories:",mdef);
+        for (p in mdef) {
+             ARCS.Application.setFactory(ARCS.Application.currentApplication, p, mdef[p]);
+        }
+
+        // hack for require.js
+        // ARCS is then defined as a require.js module.
+        
+        // It seems this hack is not needed anymore ! --> Great !
+        /*if (ARCS.isInRequire()) {
+            define(mdef);
+        }*/
+    };
+
+    // for each dependency, do:       
+    for (i = 0; i &lt; deps.length; i++) {
+        if (ARCS.isInNode()) {
+            // here this is a synchronous load of the script
+            dependencies[i] = require(deps[i]);
+        } else {
+            // here we should use require
+            actualDep = deps[i];
+            if (actualDep.name !== undefined) {
+                shimConfig = { shim: {} };
+                shimConfig.shim[actualDep.name] = { exports: actualDep.exports };
+                if (actualDep.deps !== undefined) {
+                    shimConfig.shim[actualDep.name].deps = actualDep.deps;
+                }
+                require.config(shimConfig);
+                actualDep = actualDep.name;
+            }
+            //console.log("[ARCS] Loading dependency ",actualDep);
+            
+            // since actualDep and i may be moving, we will create a function
+            // that creates a function (one more step and it will be currying
+            var handleDep = function(depName, index) {
+                    return function(dep) {
+                        //console.log(depName,"loaded",index);
+                        loadedDependencies++;
+                        dependencies[index+1] = dep;
+                        if (loadedDependencies >= deps.length) {
+                            storeComponents(dependencies);
+                        }
+                    };
+            };
+            
+            
+            require([actualDep], 
+                handleDep(actualDep,i),
+                function (err) {
+                    console.error(JSON.stringify(err));
+                }
+                );
+        }
+    }
+
+    if (ARCS.isInNode() || deps.length === 0) { storeComponents(dependencies); }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="ARCS.Application.html">Application</a></li><li><a href="ARCS.Connection.html">Connection</a></li><li><a href="ARCS.Invocation.html">Invocation</a></li><li><a href="ARCS.Sheet.html">Sheet</a></li><li><a href="ARCS.Statemachine.html">Statemachine</a></li><li><a href="ARUCODetector.html">ARUCODetector</a></li><li><a href="ARViewer.html">ARViewer</a></li><li><a href="DisplayInt.html">DisplayInt</a></li><li><a href="Loop.html">Loop</a></li><li><a href="ObjectTransform.html">ObjectTransform</a></li><li><a href="Sum.html">Sum</a></li></ul><h3>Namespaces</h3><ul><li><a href="ARCS.html">ARCS</a></li><li><a href="ARCS.Component.html">Component</a></li></ul><h3>Global</h3><ul><li><a href="global.html#arcs_module">arcs_module</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri May 15 2015 01:59:05 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

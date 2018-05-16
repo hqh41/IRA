@@ -1,0 +1,138 @@
+@viewport {
+    width: device-width;
+    zoom: 1;
+    
+}
+
+
+body {
+        font-family: sans-serif;
+        padding: 0px;
+        margin: 0px;
+}
+
+
+
+#canvas {
+        width: 320px;
+        height: 240px;
+        display: none;
+    
+}
+
+.hide {
+        display: none;
+}
+
+#overlay {
+    position: absolute;
+    z-index: 10;
+    left: 40px;
+    top: 40px;
+    padding: 10px;
+    
+    
+    background: navy;
+    /*height: 2em;*/
+    opacity: 0.6;
+
+    font-weight: bold;
+    font-size: 120%;
+    color: white;
+}
+
+
+#console {
+    position: absolute;
+    bottom: 10px;
+    margin: 10px;
+    padding: 0px;
+    font-weight: bold;
+    width: auto;
+    border: solid 1px black;
+    background: navy;
+    opacity: 0.6;
+    color: white;
+
+}
+
+#contents {
+    position: absolute;
+    z-index: 10;
+    left: 0px;
+    top: 0px;
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    
+}
+
+#notification {
+    position: absolute;
+    left: 50%;
+    margin-left: -35%;
+    top: 50%;
+    margin-top: -1.5em;
+    text-align: center;
+    width: 70%;
+    bottom: 50%;
+    display: none;
+    font-size: 180%;
+    font-weight: bold;
+    
+    background: navy;
+    height: 3em;
+    opacity: 0.6;
+    color: white;
+
+    display: none;
+}
+
+
+#output {
+    color: white;
+    height: 4em;
+    padding: 0px;
+    margin-left: 10px;
+    margin-top: 10px;
+
+    scroll-top: false;
+    overflow: auto;
+    width: 90%;
+}
+
+
+.central {
+    position: absolute;
+    text-align: center;
+    margin: 10px;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: 50%;
+    
+}
+
+.marker {
+    display: inline-block;
+    width: 6em;
+    padding-right: 1em;
+    text-align: right;    
+}
+
+#container {
+    left:0px;
+    top:0px;
+    width: 100%; 
+    height: 100%;
+}
+
+
+#logo {
+    position: absolute;
+    margin:0px;
+    padding:0px;
+    right: 0px;
+    bottom:0px;
+}
