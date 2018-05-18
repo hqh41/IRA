@@ -185,15 +185,18 @@ arcs_module(
                         // realWidth, realHeight and the size of the reference image stored
                         // in imageData.
 			
-                        var origin = [ center[0]-realWidth/2*xaxis[0],
-				       center[1]-realHeight/2*yaxis[1],
-				       center[2]];
-			
-			var ratioHeight = realHeight/this.imageData.height;
-			var ratioWidth = realWidth/this.imageData.width;
-			return [origin[0]+x*ratioWidth*xaxis[0],
-			        origin[1]+y*ratioHeight*yaxis[1],
-			        origin[2]];
+                        var imgWidth = this.imageData.width;
+                        var imageHeight = this.imageData.height;
+                        var realOrig = [
+                            center[0] - realWidth * xaxis[0]/2.0 - realHeight * yxais[0]/2.0,
+                            center[1] - realWidth * xaxis[1]/2.0 - realHeight * yxais[1]/2.0,
+                            center[2] - realWidth * xaxis[2]/2.0 - realHeight * yxais[2]/2.0
+                        ];
+                        return [
+                            realOrig[0] + x/imgWidth * realWidth * xaxis[0] + y/imgHeight * realHeight * yaxis[0],
+                            realOrig[1] + x/imgWidth * realWidth * xaxis[1] + y/imgHeight * realHeight * yaxis[1],
+                            realOrig[2] + x/imgWidth * realWidth * xaxis[2] + y/imgHeight * realHeight * yaxis[2],
+                        ];
                     };
                     
                 };
